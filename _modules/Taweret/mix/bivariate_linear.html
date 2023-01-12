@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="python" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taweret.mix.bivariate_linear &mdash; Taweret 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Taweret
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About Taweret:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Taweret for Bayesian Model Mixing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Instalation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../instalation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Taweret</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/Linear_BMM_with_step_function_for_SAMBA_models.html">Linear Bivariate BMM with SAMBA toy models : step mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/Linear_BMM_with_cdf_function_for_SAMBA_models.html">Linear Bivariate BMM with SAMBA toy models : cdf mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/Linear_BMM_with_switchcos_function_for_SAMBA_models.html">Linear Bivariate BMM with SAMBA toy models : switchcos mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/Linear_BMM_with_cdf_function_for_coleman_models.html">Linear Bivariate BMM with calibration of Coleman toy models.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/Bivariate_Test.html">Bivariate BMM Test: Taweret v.0.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/N_Model_BMM.html">“Bivariate” BMM for n = 3, …, N models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For Developers:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_add_new_mixing.html">How to add a new mixing method to Taweret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_add_documentation.html">How to update documentation in Taweret website</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Taweret</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">Taweret.mix.bivariate_linear</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for Taweret.mix.bivariate_linear</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">bilby</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">Taweret.utils.utils</span> <span class="kn">import</span> <span class="n">mixture_function</span><span class="p">,</span> <span class="n">eps</span>
+<span class="kn">from</span> <span class="nn">Taweret.core.base_mixer</span> <span class="kn">import</span> <span class="n">BaseMixer</span>
+<span class="kn">from</span> <span class="nn">Taweret.core.base_model</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">Taweret.sampler.likelihood_wrappers</span> <span class="kn">import</span> <span class="n">likelihood_wrapper_for_bilby</span>
+
+<div class="viewcode-block" id="BivariateLinear"><a class="viewcode-back" href="../../../Taweret.mix.html#Taweret.mix.bivariate_linear.BivariateLinear">[docs]</a><span class="k">class</span> <span class="nc">BivariateLinear</span><span class="p">(</span><span class="n">BaseMixer</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Local linear likelihood mixing of two models.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_dic</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="n">nargs_model_dic</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        models_dic : dictionary {&#39;name1&#39; : model1, &#39;name2&#39; : model2}</span>
+<span class="sd">            Two models to mix, each must be derived from the base_model.</span>
+<span class="sd">        method : str</span>
+<span class="sd">            mixing function</span>
+<span class="sd">        nargs_model_dic : dictionary {&#39;name1&#39; : N_model1, &#39;name2&#39; : N_model2}</span>
+<span class="sd">            number of free parameters in each model</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">nargs_model_dic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nargs_model_dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nargs_model_dic</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;nargs_model_dic has to be a dictionary&quot;</span><span class="p">)</span>
+        <span class="c1"># check if more than two models are trying to be mixed</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models_dic</span><span class="p">)</span><span class="o">!=</span><span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Bivariate linear mixing requires only two models.</span><span class="se">\</span>
+<span class="s1">                            Please look at the other mixing methods in Taweret </span><span class="se">\</span>
+<span class="s1">                            for multi modal mixing&#39;</span><span class="p">)</span>
+
+        <span class="c1">#check if the models are derived from the base class</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">models_dic</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">BaseModel</span><span class="p">)</span> <span class="c1"># model is not a class but an object</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;model </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">models_dic</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1"> is not derived from </span><span class="se">\</span>
+<span class="s1">                    taweret.core.base_model class&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models_dic</span> <span class="o">=</span> <span class="n">models_dic</span>
+        <span class="c1"># If a new method is added the following needs to be updated</span>
+        <span class="c1"># It has method and number of free parameters in each method</span>
+        <span class="n">method_n_mix_dic</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;step&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;cdf&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;switchcos&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">}</span>
+
+        <span class="c1">#check if the mixing function exist</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">method_n_mix_dic</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Mixing function is not found&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_mix</span><span class="o">=</span><span class="n">method_n_mix_dic</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> mixing function has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_mix</span><span class="si">}</span><span class="s1"> free parameter(s)&#39;</span><span class="p">)</span>
+        <span class="c1">#assign default priors</span>
+        <span class="n">priors</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">PriorDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_mix</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">priors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">=</span><span class="n">bilby</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning : Default prior is set to </span><span class="si">{</span><span class="n">priors</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;To change the prior use `set_prior` method&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prior</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">set_prior</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span> <span class="c1"># This combines model priors with mixing method priors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nargs_model_dic</span> <span class="o">=</span> <span class="n">nargs_model_dic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_was_trained</span><span class="o">=</span><span class="kc">False</span> <span class="c1"># Flag to know if the model was trained or not</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_posterior</span><span class="o">=</span><span class="kc">None</span>
+<span class="c1"># Attributes</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prior</span>
+    <span class="nd">@prior</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">prior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bilby_prior_dic</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_prior</span><span class="p">(</span><span class="n">bilby_prior_dic</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_posterior</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;First train the model to access the posterior&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_posterior</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;First train the model to access the MAP&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map</span>
+<span class="c1">#End Attributes</span>
+
+<div class="viewcode-block" id="BivariateLinear.evaluate"><a class="viewcode-back" href="../../../Taweret.mix.html#Taweret.mix.bivariate_linear.BivariateLinear.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mixture_params</span><span class="p">,</span> <span class="n">x</span> <span class="p">,</span> <span class="n">model_params</span><span class="o">=</span><span class="p">[]):</span>
+
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Evaluvate the mixed model for given parameters at input values x</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mixture_params : np.1darray</span>
+<span class="sd">            parameter values that fix the shape of mixing function</span>
+<span class="sd">        x : np.1daray</span>
+<span class="sd">            input parameter values array</span>
+<span class="sd">        model_params: list[np.1darray]</span>
+<span class="sd">            list of parameter values for each model</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        ---------</span>
+<span class="sd">        evaluation : np.1darray</span>
+<span class="sd">            the evaluation of the mixed model at input values x</span>
+<span class="sd">        </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">w1</span><span class="p">,</span> <span class="n">w2</span> <span class="o">=</span> <span class="n">mixture_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mixture_params</span><span class="p">)</span>
+        <span class="n">model_1</span><span class="p">,</span> <span class="n">model_2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models_dic</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model_1_out</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">model_1</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">model_params</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">model_1_out</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">model_1</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model_2_out</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">model_2</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">model_params</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">model_2_out</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">model_2</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">w1</span><span class="o">*</span><span class="n">model_1_out</span> <span class="o">+</span> <span class="n">w2</span><span class="o">*</span><span class="n">model_2_out</span></div>
+    
+    
+<div class="viewcode-block" id="BivariateLinear.evaluate_weights"><a class="viewcode-back" href="../../../Taweret.mix.html#Taweret.mix.bivariate_linear.BivariateLinear.evaluate_weights">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mixture_params</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        return the mixing function values at the input parameter values x</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mixture_params : np.1darray</span>
+<span class="sd">            parameter values that fix the shape of mixing function</span>
+<span class="sd">        x : np.1darray</span>
+<span class="sd">            input parameter values</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        weights : list[np.1darray, np.1darray]</span>
+<span class="sd">            weights for model 1 and model 2 at input values x</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">mixture_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mixture_params</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BivariateLinear.predict"><a class="viewcode-back" href="../../../Taweret.mix.html#Taweret.mix.bivariate_linear.BivariateLinear.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">CI</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">95</span><span class="p">],</span> <span class="n">samples</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Evaluate posterior to make prediction at test points x.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : np.1darray</span>
+<span class="sd">            input parameter values</span>
+<span class="sd">        CI : list</span>
+<span class="sd">            confidence intervals as percentages</span>
+<span class="sd">        samples: np.ndarray</span>
+<span class="sd">            If samples are given use that instead of posterior\</span>
+<span class="sd">                for predictions. </span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        evaluated_posterior : np.ndarray</span>
+<span class="sd">            array of posterior predictive distribution evaluated at provided</span>
+<span class="sd">            test points</span>
+<span class="sd">        mean : np.ndarray</span>
+<span class="sd">            average mixed model value at each provided test points</span>
+<span class="sd">        credible_intervals : np.ndarray</span>
+<span class="sd">            intervals corresponding for 60%, 90% credible intervals</span>
+<span class="sd">        std_dev : np.ndarray</span>
+<span class="sd">            sample standard deviation of mixed model output at provided test</span>
+<span class="sd">            points</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_was_trained</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Posterior is not available to make predictions</span><span class="se">\n\</span>
+<span class="s1">                            train the model before predicting&#39;</span><span class="p">)</span>
+        <span class="n">pos_predictions</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">if</span> <span class="n">samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;using provided samples instead of posterior&quot;</span><span class="p">)</span>
+            <span class="n">posterior</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">posterior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_posterior</span>
+        <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">posterior</span><span class="p">:</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+            <span class="n">mixture_param</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_mix</span><span class="p">]</span>
+            <span class="n">model_params</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">n_args_for_models</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nargs_model_dic</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="n">n_args_sum</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">n_args_for_models</span><span class="p">)):</span>
+                <span class="n">model_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_mix</span><span class="o">+</span><span class="n">n_args_sum</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_mix</span><span class="o">+</span><span class="n">n_args_sum</span><span class="o">+</span><span class="n">n_args_for_models</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+                <span class="n">n_args_sum</span><span class="o">+=</span><span class="n">n_args_for_models</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">mixture_param</span><span class="p">,</span><span class="n">x</span><span class="p">,</span> <span class="n">model_params</span><span class="p">)</span>
+            <span class="n">pos_predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">pos_predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pos_predictions</span><span class="p">)</span>
+
+        <span class="n">CIs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">pos_predictions</span><span class="p">,</span><span class="n">CI</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pos_predictions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">std_dev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">pos_predictions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pos_predictions</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">CIs</span><span class="p">,</span> <span class="n">std_dev</span></div>
+
+<div class="viewcode-block" id="BivariateLinear.predict_weights"><a class="viewcode-back" href="../../../Taweret.mix.html#Taweret.mix.bivariate_linear.BivariateLinear.predict_weights">[docs]</a>    <span class="k">def</span> <span class="nf">predict_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">CI</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">95</span><span class="p">],</span> <span class="n">samples</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Calculate posterior predictive distribution for first model weights</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : np.1darray</span>
+<span class="sd">            input parameter values</span>
+<span class="sd">        CI : list</span>
+<span class="sd">            confidence intervals</span>
+<span class="sd">        samples: np.ndarray</span>
+<span class="sd">            If samples are given use that instead of posterior\</span>
+<span class="sd">                for predictions.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        posterior_weights : np.ndarray</span>
+<span class="sd">            array of posterior predictive distribution of weights</span>
+<span class="sd">        mean : np.ndarray</span>
+<span class="sd">            average mixed model value at each provided test points</span>
+<span class="sd">        credible_intervals : np.ndarray</span>
+<span class="sd">            intervals corresponding for 60%, 90% credibl e intervals</span>
+<span class="sd">        std_dev : np.ndarray</span>
+<span class="sd">            sample standard deviation of mixed model output at provided test</span>
+<span class="sd">            points</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_was_trained</span><span class="o">==</span><span class="kc">False</span> <span class="ow">and</span> <span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Posterior is not available to make predictions</span><span class="se">\n\</span>
+<span class="s1">                            train the model before predicting&#39;</span><span class="p">)</span>
+        <span class="n">pos_predictions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;using provided samples instead of posterior&quot;</span><span class="p">)</span>
+            <span class="n">posterior</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">posterior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_posterior</span>
+        <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">posterior</span><span class="p">:</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+            <span class="n">mixture_param</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_mix</span><span class="p">]</span>
+
+            <span class="n">value</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_weights</span><span class="p">(</span><span class="n">mixture_param</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">pos_predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">pos_predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pos_predictions</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">pos_predictions</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+
+        <span class="n">CIs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">pos_predictions</span><span class="p">,</span><span class="n">CI</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pos_predictions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">std_dev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">pos_predictions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pos_predictions</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">CIs</span><span class="p">,</span> <span class="n">std_dev</span></div>
+
+
+<div class="viewcode-block" id="BivariateLinear.prior_predict"><a class="viewcode-back" href="../../../Taweret.mix.html#Taweret.mix.bivariate_linear.BivariateLinear.prior_predict">[docs]</a>    <span class="k">def</span> <span class="nf">prior_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">CI</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">95</span><span class="p">],</span> <span class="n">n_sample</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Evaluate prior to make prediction at test points x.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : np.1darray</span>
+<span class="sd">            input parameter values</span>
+<span class="sd">        CI : list</span>
+<span class="sd">            confidence intervals</span>
+<span class="sd">        n_samples : int</span>
+<span class="sd">            number of samples to evaluvate prior_prediction</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        evaluated_prior : np.ndarray</span>
+<span class="sd">            array of prior predictive distribution evaluated at provided</span>
+<span class="sd">            test points</span>
+<span class="sd">        mean : np.ndarray</span>
+<span class="sd">            average mixed model value at each provided test points</span>
+<span class="sd">        credible_intervals : np.ndarray</span>
+<span class="sd">            intervals corresponding for 60%, 90% credible intervals</span>
+<span class="sd">        std_dev : np.ndarray</span>
+<span class="sd">            sample standard deviation of mixed model output at provided test</span>
+<span class="sd">            points</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prior</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Define the prior first using set_prior&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prior</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n_sample</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">T</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">CI</span><span class="o">=</span><span class="n">CI</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="n">samples</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BivariateLinear.set_prior"><a class="viewcode-back" href="../../../Taweret.mix.html#Taweret.mix.bivariate_linear.BivariateLinear.set_prior">[docs]</a>    <span class="k">def</span> <span class="nf">set_prior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bilby_prior_dic</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set prior for the mixing function parameters.</span>
+<span class="sd">        Prior for the model parameters should be defined in each model.</span>
+
+<span class="sd">        Parametrs:</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bilby_prior_dic : bilby.core.prior.PriorDict</span>
+<span class="sd">            The keys should be named as following :</span>
+<span class="sd">                &#39;&lt;mix_func_name&gt;_1&#39;, &#39;&lt;mix_func_name&gt;_2&#39;, ...</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A full Bilby prior object for the mixed model.</span>
+<span class="sd">        Including the mixing function parameters and model parameters.</span>
+<span class="sd">        The Bilby prior dictionary has following keys.</span>
+<span class="sd">            Prior for mixture function parameter :</span>
+<span class="sd">                &#39;&lt;mix_func_name&gt;_1&#39;, &#39;&lt;mix_func_name&gt;_2&#39;, ...</span>
+<span class="sd">            Prior parameters for model 1 : </span>
+<span class="sd">                &#39;&lt;name_of_the_model&gt;_1&#39;, &#39;&lt;name_of_the_model&gt;_2&#39; , ...</span>
+<span class="sd">            Prior parameters for model 2 : </span>
+<span class="sd">                &#39;&lt;name_of_the_model&gt;_1&#39;, &#39;&lt;name_of_the_model&gt;_2&#39; , ...</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models_dic</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">prior</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1">#print(f&#39;model has no prior {model}&#39;)</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">priors</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">prior</span>
+            <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">entry2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">priors</span><span class="p">):</span>
+                <span class="n">bilby_prior_dic</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">ii</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">priors</span><span class="p">[</span><span class="n">entry2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prior</span> <span class="o">=</span> <span class="n">bilby_prior_dic</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prior</span></div>
+
+<div class="viewcode-block" id="BivariateLinear.mix_loglikelihood"><a class="viewcode-back" href="../../../Taweret.mix.html#Taweret.mix.bivariate_linear.BivariateLinear.mix_loglikelihood">[docs]</a>    <span class="k">def</span> <span class="nf">mix_loglikelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mixture_params</span><span class="p">,</span> <span class="n">model_param</span><span class="p">,</span> <span class="n">x_exp</span><span class="p">,</span> <span class="n">y_exp</span><span class="p">,</span> <span class="n">y_err</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        log likelihood of the mixed model given the mixing function parameters</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mixture_params : np.1darray</span>
+<span class="sd">            parameter values that fix the shape of mixing function</span>
+<span class="sd">        model_1_param: np.1darray</span>
+<span class="sd">            parameter values in the model 1</span>
+<span class="sd">        model_2_param: np.1darray</span>
+<span class="sd">            parameter values  in the model 2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_param</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">model_1_param</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+            <span class="n">model_2_param</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model_1_param</span> <span class="p">,</span> <span class="n">model_2_param</span> <span class="o">=</span> <span class="n">model_param</span>
+        <span class="n">W_1</span><span class="p">,</span> <span class="n">W_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_weights</span><span class="p">(</span><span class="n">mixture_params</span><span class="p">,</span> <span class="n">x_exp</span><span class="p">)</span>
+        <span class="n">W_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">W_1</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
+        <span class="n">W_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">W_2</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
+        <span class="n">model_1</span><span class="p">,</span> <span class="n">model_2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models_dic</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">L1</span> <span class="o">=</span> <span class="n">model_1</span><span class="o">.</span><span class="n">log_likelihood_elementwise</span><span class="p">(</span><span class="n">x_exp</span><span class="p">,</span> <span class="n">y_exp</span><span class="p">,</span> <span class="n">y_err</span><span class="p">,</span> <span class="n">model_1_param</span><span class="p">)</span>
+        <span class="n">L2</span> <span class="o">=</span> <span class="n">model_2</span><span class="o">.</span><span class="n">log_likelihood_elementwise</span><span class="p">(</span><span class="n">x_exp</span><span class="p">,</span> <span class="n">y_exp</span><span class="p">,</span> <span class="n">y_err</span><span class="p">,</span> <span class="n">model_2_param</span><span class="p">)</span>
+        <span class="c1"># L1 = log_likelihood_elementwise(self.models_dic.items()[0], self.x_exp, self.y_exp, \</span>
+        <span class="c1"># self.y_err, model_1_param)</span>
+        <span class="c1"># L2 = log_likelihood_elementwise(self.models_dic.items()[1], self.x_exp, self.y_exp, \</span>
+        <span class="c1"># self.y_err, model_2_param)</span>
+
+        <span class="c1">#we use the logaddexp here for numerical accuracy. Look at the</span>
+        <span class="c1">#mix_loglikelihood_test to check for an alternative (common) way</span>
+        <span class="n">mixed_loglikelihood_elementwise</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logaddexp</span><span class="p">(</span><span class="n">W_1</span><span class="o">+</span><span class="n">L1</span><span class="p">,</span> <span class="n">W_2</span><span class="o">+</span><span class="n">L2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mixed_loglikelihood_elementwise</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BivariateLinear.train"><a class="viewcode-back" href="../../../Taweret.mix.html#Taweret.mix.bivariate_linear.BivariateLinear.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_exp</span><span class="p">,</span> <span class="n">y_exp</span><span class="p">,</span> <span class="n">y_err</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;bivariate_mix&#39;</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;outdir&#39;</span><span class="p">,</span> <span class="n">kwargs_for_sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Run sampler to learn parameters. Method should also create class</span>
+<span class="sd">        members that store the posterior and other diagnostic quantities</span>
+<span class="sd">        important for plotting</span>
+<span class="sd">        MAP values should also caluclate and set as member variable of</span>
+<span class="sd">        class</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">        -------</span>
+<span class="sd">        result : bilby posterior object</span>
+<span class="sd">            object returned by the bilby sampler</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prior</span>
+        <span class="k">if</span> <span class="n">prior</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Please define the priors before training&quot;</span><span class="p">)</span>
+
+        <span class="c1"># A few simple setup steps</span>
+        <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_wrapper_for_bilby</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_exp</span><span class="p">,</span> <span class="n">y_exp</span><span class="p">,</span> <span class="n">y_err</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">outdir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwargs_for_sampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs_for_sampler</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sampler&#39;</span><span class="p">:</span><span class="s1">&#39;ptemcee&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ntemps&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span>
+            <span class="s1">&#39;nwalkers&#39;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span>
+            <span class="s1">&#39;Tmax&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;burn_in_fixed_discard&#39;</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span>
+            <span class="s1">&#39;nsamples&#39;</span><span class="p">:</span><span class="mi">5000</span><span class="p">,</span>
+            <span class="s1">&#39;threads&#39;</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span>
+            <span class="s1">&#39;printdt&#39;</span><span class="p">:</span><span class="mi">60</span><span class="p">}</span>
+            <span class="c1">#&#39;safety&#39;:2,</span>
+            <span class="c1">#&#39;autocorr_tol&#39;:5}</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The following Default settings for sampler will be used. You can change</span><span class="se">\</span>
+<span class="s1">these arguments by providing kwargs_for_sampler argement in `train`.</span><span class="se">\</span>
+<span class="s1">Check Bilby documentation for other sampling options.</span><span class="se">\n</span><span class="si">{</span><span class="n">kwargs_for_sampler</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The following settings were provided for sampler </span><span class="se">\n</span><span class="si">{</span><span class="n">kwargs_for_sampler</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">bilby</span><span class="o">.</span><span class="n">run_sampler</span><span class="p">(</span>
+            <span class="n">likelihood</span><span class="p">,</span>
+            <span class="n">prior</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">outdir</span><span class="o">=</span><span class="n">outdir</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs_for_sampler</span><span class="p">)</span>
+        <span class="c1"># The last two columns are model liklihood and log_prior.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_posterior</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_was_trained</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Shorcut to find MAP. Need to implement a proper optimization routine to find MAP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_posterior</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()),:]</span>
+
+        <span class="k">return</span> <span class="n">result</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Dan Liyanage, Alexandra Semposki.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
