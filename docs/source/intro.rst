@@ -15,7 +15,7 @@ Mixing is a data-driven technique that allows us to combine the models to get th
 and calibrations while taking into account the modeling uncertainties. Taweret is a python package \
 for Bayesian Model Mixing. 
 
-Typical workflow of Bayesian Model Mixing
+Typical workflow of Bayesian Model Mixing:
 
 1. Collect all the models and experimental data 
 2. Decide on a mixing method
